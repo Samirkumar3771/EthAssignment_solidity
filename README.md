@@ -1,53 +1,38 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity 0.8.18;
+/*
+       REQUIREMENTS
+    1. Your contract will have public variables that store the details about your coin (Token Name, Token Abbrv., Total Supply)
+    2. Your contract will have a mapping of addresses to balances (address => uint)
+    3. You will have a mint function that takes two parameters: an address and a value. 
+       The function then increases the total supply by that number and increases the balance 
+       of the “sender” address by that amount
+    4. Your contract will have a burn function, which works the opposite of the mint function, as it will destroy tokens. 
+       It will take an address and value just like the mint functions. It will then deduct the value from the total supply 
+       and from the balance of the “sender”.
+    5. Lastly, your burn function should have conditionals to make sure the balance of "sender" is greater than or equal 
+       to the amount that is supposed to be burned.
+*/
+contract MyToken {
+    // public variables here
+    string public tokenName = "META";
+    string public tokenAbbrv = "MTA";
+    uint public totalSupply = 0;
 
-contract SimpleBank {
-    mapping(address => uint256) private balances;
+    // mapping variable here
+    mapping(address => uint) public balances;
 
-    // Event to log the deposit operation
-    event Deposit(address indexed account, uint256 amount);
-
-    // Event to log the withdrawal operation
-    event Withdrawal(address indexed account, uint256 amount);
-
-    // Function to deposit Ether into the contract
-    function deposit() public payable {
-        // Using require to ensure a positive deposit amount
-        require(msg.value > 0, "Deposit amount must be greater than zero.");
-
-        // Update the balance
-        balances[msg.sender] += msg.value;
-
-        // Emit the Deposit event
-        emit Deposit(msg.sender, msg.value);
+    // mint function
+    function mint (address _address, uint _value) public {
+        totalSupply += _value;
+        balances[_address] += _value;
     }
 
-    // Function to withdraw Ether from the contract
-    function withdraw(uint256 _amount) public {
-        // Using require to ensure the sender has enough balance
-        require(balances[msg.sender] >= _amount, "Insufficient balance.");
-
-        // Update the balance
-        balances[msg.sender] -= _amount;
-
-        // Transfer the Ether and check for successful transfer using assert
-        (bool success, ) = msg.sender.call{value: _amount}("");
-        assert(success);
-
-        // Emit the Withdrawal event
-        emit Withdrawal(msg.sender, _amount);
+    // burn function
+    function burn (address _address, uint _value) public {
+        if (balances[_address] >= _value){
+        totalSupply -= _value;
+        balances[_address] -= _value;
     }
-
-    // Function to get the balance of the caller
-    function getBalance() public view returns (uint256) {
-        return balances[msg.sender];
-    }
-
-    // Function to demonstrate the use of revert
-    function demoRevert(uint256 _value) public pure {
-        // If the value is less than 10, revert the transaction
-        if (_value < 10) {
-            revert("Value must be at least 10.");
-        }
-    }
+}
 }
